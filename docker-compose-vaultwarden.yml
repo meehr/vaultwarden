@@ -22,11 +22,11 @@ services:
     container_name: phoenyx_vault
     restart: unless-stopped
     environment:
-      - DATABASE_URL=mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@${MARIADB_HOST}/${MARIADB_DATABASE}
+      - "DATABASE_URL=mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@${MARIADB_HOST}/${MARIADB_DATABASE}"
       - LOG_LEVEL=info
       - TZ=Europe/Berlin
       - WEBSOCKET_ENABLED=${WEBSOCKET}
-      - ADMIN_TOKEN=${TOKEN}
+      - "ADMIN_TOKEN=${TOKEN}"
       - SMTP_FROM_NAME=${SMTP_FROM_NAME}
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_FROM=${SMTP_FROM}
@@ -37,6 +37,9 @@ services:
       - SMTP_PASSWORD=${SMTP_PASSWORD}
       - SIGNUPS_VERIFY=true
       - LOG_FILE= /var/log/vaultwarden.log
+      - DOMAIN=${DOMAIN}
+      - EMAIL=${EMAIL}
+      - "RUST_BACKTRACE=1"
 
     ports:
       - 3012:3012
@@ -45,10 +48,18 @@ services:
     volumes:
       - type: bind
         source: /mnt/storage/vault
-        target: /vw-data:/data/
+        target: /data/
     networks:
       - nginx_proxy_frontend
       - nginx_proxy_backend
 
+networks:
+  nginx_proxy_frontend:
+    # add this if the network is already existing!
+    external: true
+  nginx_proxy_backend:
+    # add this if the network is already existing!
+    external: true
 
-
+volumes:
+  vault_db_vol:
