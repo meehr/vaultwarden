@@ -3,7 +3,7 @@ version: '3.9'
 services:
   vault_db:
     image: mariadb
-    container_name: "vault_db"
+    container_name: "${CONTAINER_NAME_DB}"
     hostname: "${MARIADB_HOST}"
     restart: always
     environment:
@@ -19,7 +19,7 @@ services:
 
   vaultwarden:
     image: vaultwarden/server:latest
-    container_name: phoenyx_vault
+    container_name: "${CONTAINER_NAME}"
     restart: unless-stopped
     environment:
       - "DATABASE_URL=mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@${MARIADB_HOST}/${MARIADB_DATABASE}"
@@ -30,7 +30,7 @@ services:
       - SMTP_FROM_NAME=${SMTP_FROM_NAME}
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_FROM=${SMTP_FROM}
-      - SMTP_PORT=${SMTP_PORT} #465 or 587
+      - SMTP_PORT=${SMTP_PORT}
       - SMTP_SSL=${SMTP_SSL}
       - SMTP_SECURITY=${SMTP_SECURITY}
       - SMTP_USERNAME=${SMTP_USERNAME}
@@ -40,7 +40,8 @@ services:
       - DOMAIN=${DOMAIN}
       - EMAIL=${EMAIL}
       - "RUST_BACKTRACE=1"
-
+      - SIGNUPS_ALLOWED=false
+      - INVITATIONS_ALLOWED=false
     ports:
       - 3012:3012
       - 9180:80
