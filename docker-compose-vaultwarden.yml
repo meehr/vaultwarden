@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+  vault_db:
+    image: mariadb
+    container_name: "vault_db"
+    hostname: "${MARIADB_HOST}"
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}
+      - MARIADB_DATABASE=${MARIADB_DATABASE}
+      - MARIADB_USER=${MARIADB_USER}
+      - MARIADB_PASSWORD=${MARIADB_PASSWORD}
+    volumes:
+      - vault_db_vol:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - nginx_proxy_backend
+
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: phoenyx_vault
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@${MARIADB_HOST}/${MARIADB_DATABASE}
+      - LOG_LEVEL=info
+      - TZ=Europe/Berlin
+      - WEBSOCKET_ENABLED=${WEBSOCKET}
+      - ADMIN_TOKEN=${TOKEN}
+      - SMTP_FROM_NAME=${SMTP_FROM_NAME}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_FROM=${SMTP_FROM}
+      - SMTP_PORT=${SMTP_PORT} #465 or 587
+      - SMTP_SSL=${SMTP_SSL}
+      - SMTP_SECURITY=${SMTP_SECURITY}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SIGNUPS_VERIFY=true
+      - LOG_FILE= /var/log/vaultwarden.log
+
+    ports:
+      - 3012:3012
+      - 9180:80
+      - 9143:443
+    volumes:
+      - type: bind
+        source: /mnt/storage/vault
+        target: /vw-data:/data/
+    networks:
+      - nginx_proxy_frontend
+      - nginx_proxy_backend
+
+
+
