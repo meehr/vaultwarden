@@ -16,6 +16,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
     networks:
       - nginx_proxy_backend
+    ports:
+      - 3307:3306
 
   vaultwarden:
     image: vaultwarden/server:latest
